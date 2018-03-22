@@ -1,4 +1,4 @@
-# Apache Setup
+# Apache
 
 ## Overview
 
@@ -19,6 +19,8 @@ CentOS:
     systemctl start httpd
 
 ## Configuration
+
+Apache needs to be able to read the folder containing your auth project's static files. On Ubuntu: `chown -R www-data:www-data /var/www/myauth/static`, and on CentOS: `chown -R apache:apache /var/www/myauth/static`
 
 Apache serves sites through defined virtual hosts. These are located in `/etc/apache2/sites-available/` on Ubuntu and `/etc/httpd/conf.d/httpd.conf` on CentOS.
 

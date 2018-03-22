@@ -66,10 +66,16 @@ CentOS:
 Alliance Auth needs a MySQL user account and database. Open an SQL shell with `mysql -u root -p` and create them as follows, replacing `PASSWORD` with an actual secure password:
 
     CREATE USER 'allianceserver'@'localhost' IDENTIFIED BY 'PASSWORD';
-    CREATE DATABASE alliance_auth;
+    CREATE DATABASE alliance_auth CHARACTER SET utf8;
     GRANT ALL PRIVILEGES ON alliance_auth . * TO 'allianceserver'@'localhost';
 
 Close the SQL shell and secure your database server with the `mysql_secure_installation` command.
+
+If you're updating from v1, populate this database with a copy of the data from your v1 database.
+
+    mysqldump -u root -p v1_database_name_here | mysql -u root -p alliance_auth
+
+Note this command will prompt you for the root password twice.
 
 ## Auth Install
 
@@ -129,7 +135,6 @@ Now we need to round up all the static files required to render templates. Make 
     
     mkdir -p /var/www/myauth/static
     python /home/allianceserver/myauth/manage.py collectstatic
-    chown -R www-data:www-data /var/www/myauth/static
 
 Check to ensure your settings are valid.
 

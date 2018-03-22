@@ -5,26 +5,30 @@ import re
 
 from django.db import connections
 from passlib.hash import bcrypt
+from django.conf import settings
 
 # requires yum install libffi-devel and pip install bcrypt
 
 logger = logging.getLogger(__name__)
 
 
+TABLE_PREFIX = getattr(settings, 'MARKET_TABLE_PREFIX', 'fos_')
+
+
 class MarketManager:
     def __init__(self):
         pass
 
-    SQL_ADD_USER = r"INSERT INTO fos_user (username, username_canonical, email, email_canonical, enabled, salt," \
+    SQL_ADD_USER = r"INSERT INTO %suser (username, username_canonical, email, email_canonical, enabled, salt," \
                    r"password, locked, expired, roles, credentials_expired, characterid, characterName)" \
-                   r"VALUES (%s, %s, %s, %s, 1,%s, %s, 0, 0, 'a:0:{}', 0, %s, %s) "
-    SQL_GET_USER_ID = r"SELECT id FROM fos_user WHERE username = %s"
-    SQL_DISABLE_USER = r"UPDATE fos_user SET enabled = '0' WHERE username = %s"
-    SQL_ENABLE_USER = r"UPDATE fos_user SET enabled = '1' WHERE username = %s"
-    SQL_UPDATE_PASSWORD = r"UPDATE fos_user SET password = %s, salt = %s WHERE username = %s"
-    SQL_CHECK_EMAIL = r"SELECT email FROM fos_user WHERE email = %s"
-    SQL_CHECK_USERNAME = r"SELECT username FROM fos_user WHERE username = %s"
-    SQL_UPDATE_USER = r"UPDATE fos_user SET password = %s, salt = %s, enabled = '1' WHERE username = %s"
+                   r"VALUES (%%s, %%s, %%s, %%s, 1,%%s, %%s, 0, 0, 'a:0:{}', 0, %%s, %%s) " % TABLE_PREFIX
+    SQL_GET_USER_ID = r"SELECT id FROM %suser WHERE username = %%s" % TABLE_PREFIX
+    SQL_DISABLE_USER = r"UPDATE %suser SET enabled = '0' WHERE username = %%s" % TABLE_PREFIX
+    SQL_ENABLE_USER = r"UPDATE %suser SET enabled = '1' WHERE username = %%s" % TABLE_PREFIX
+    SQL_UPDATE_PASSWORD = r"UPDATE %suser SET password = %%s, salt = %%s WHERE username = %%s" % TABLE_PREFIX
+    SQL_CHECK_EMAIL = r"SELECT email FROM %suser WHERE email = %%s" % TABLE_PREFIX
+    SQL_CHECK_USERNAME = r"SELECT username FROM %suser WHERE username = %%s" % TABLE_PREFIX
+    SQL_UPDATE_USER = r"UPDATE %suser SET password = %%s, salt = %%s, enabled = '1' WHERE username = %%s" % TABLE_PREFIX
 
     @staticmethod
     def __santatize_username(username):
