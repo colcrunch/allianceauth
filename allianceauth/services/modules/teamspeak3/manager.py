@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib.auth.models import User
 from django.conf import settings
 
 from .util.ts3 import TS3Server, TeamspeakError
@@ -181,16 +182,18 @@ class Teamspeak3Manager:
 
     def add_user(self, username):
         username_clean = self.__santatize_username(username[:30])
+        user = User.objects.get(username=username)
         logger.debug("Adding user to TS3 server with cleaned username %s" % username_clean)
         server_groups = self._group_list()
 
-        if 'Member' not in server_groups:
-            self._create_group('Member')
+        state = user.profile.state.name
+        if state not in server_groups:
+             self._create_group(state)
 
-        alliance_group_id = self._group_id_by_name('Member')
+        state_group_id = self._group_id_by_name(state)
 
         try:
-            ret = self.server.send_command('tokenadd', {'tokentype': 0, 'tokenid1': alliance_group_id, 'tokenid2': 0,
+            ret = self.server.send_command('tokenadd', {'tokentype': 0, 'tokenid1': state_group_id, 'tokenid2': 0,
                                                         'tokendescription': username_clean,
                                                         'tokencustomset': "ident=sso_uid value=%s" % username_clean})
         except TeamspeakError as e:
