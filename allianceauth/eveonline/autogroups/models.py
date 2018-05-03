@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def get_users_for_state(state: State):
     return User.objects.select_related('profile').prefetch_related('profile__main_character')\
-            .filter(profile__state__pk=state.pk)
+            .filter(profile__state_id=state.pk)
 
 
 class AutogroupsConfigManager(models.Manager):
@@ -39,7 +39,12 @@ class AutogroupsConfigManager(models.Manager):
         if state is None:
             state = user.profile.state
         for config in self.filter(states=state):
-                config.update_group_membership_for_user(user)
+            # grant user new groups for their state
+            config.update_group_membership_for_user(user)
+        for config in self.exclude(states=state):
+            # ensure user does not have groups from previous state
+            config.remove_user_from_alliance_groups(user)
+            config.remove_user_from_corp_groups(user)
 
 
 class AutogroupsConfig(models.Model):
@@ -119,8 +124,9 @@ class AutogroupsConfig(models.Model):
                     return
                 group = self.get_alliance_group(alliance)
         except EveAllianceInfo.DoesNotExist:
-            logger.warning('User {} main characters alliance does not exist in the database.'
-                           ' Group membership not updated'.format(user))
+            logger.debug('User {} main characters alliance does not exist in the database. Creating.'.format(user))
+            alliance = EveAllianceInfo.objects.create_alliance(user.profile.main_character.alliance_id)
+            group = self.get_alliance_group(alliance)
         except AttributeError:
             logger.warning('User {} does not have a main character. Group membership not updated'.format(user))
         finally:
@@ -139,8 +145,9 @@ class AutogroupsConfig(models.Model):
                 corp = user.profile.main_character.corporation
                 group = self.get_corp_group(corp)
         except EveCorporationInfo.DoesNotExist:
-            logger.warning('User {} main characters corporation does not exist in the database.'
-                           ' Group membership not updated'.format(user))
+            logger.debug('User {} main characters corporation does not exist in the database. Creating.'.format(user))
+            corp = EveCorporationInfo.objects.create_corporation(user.profile.main_character.corporation_id)
+            group = self.get_corp_group(corp)
         except AttributeError:
             logger.warning('User {} does not have a main character. Group membership not updated'.format(user))
         finally:

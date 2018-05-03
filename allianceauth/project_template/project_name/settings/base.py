@@ -41,11 +41,11 @@ CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
 CELERYBEAT_SCHEDULE = {
     'esi_cleanup_callbackredirect': {
         'task': 'esi.tasks.cleanup_callbackredirect',
-        'schedule': crontab(hour='*/4'),
+        'schedule': crontab(minute=0, hour='*/4'),
     },
     'esi_cleanup_token': {
         'task': 'esi.tasks.cleanup_token',
-        'schedule': crontab(day_of_month='*/1'),
+        'schedule': crontab(minute=0, hour=0),
     },
     'run_model_update': {
         'task': 'allianceauth.eveonline.tasks.run_model_update',
@@ -53,7 +53,7 @@ CELERYBEAT_SCHEDULE = {
     },
     'check_all_character_ownership': {
         'task': 'allianceauth.authentication.tasks.check_all_character_ownership',
-        'schedule': crontab(hour='*/4'),
+        'schedule': crontab(minute=0, hour='*/4'),
     }
 }
 
@@ -166,7 +166,6 @@ CACHES = {
     }
 }
 
-SECRET_KEY = 'this is a very bad secret key you should change'
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 DATABASES = {
@@ -234,6 +233,10 @@ LOGGING = {
         'django': {
             'handlers': ['log_file', 'console'],
             'level': 'ERROR',
+        },
+        'esi': {
+            'handlers': ['log_file', 'console'],
+            'level': 'DEBUG',
         },
     }
 }
