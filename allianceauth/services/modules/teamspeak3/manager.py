@@ -5,6 +5,7 @@ from django.conf import settings
 
 from .util.ts3 import TS3Server, TeamspeakError
 from .models import TSgroup
+from .tasks import Teamspeak3Tasks
 
 logger = logging.getLogger(__name__)
 
@@ -180,9 +181,9 @@ class Teamspeak3Manager:
         except:
             logger.exception("An unhandled exception has occured while syncing TS groups.")
 
-    def add_user(self, username):
+    def add_user(self, user):
+        username = Teamspeak3Tasks.get_username(user)
         username_clean = self.__santatize_username(username[:30])
-        user = User.objects.get(username=username)
         logger.debug("Adding user to TS3 server with cleaned username %s" % username_clean)
         server_groups = self._group_list()
 
