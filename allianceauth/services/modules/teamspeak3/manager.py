@@ -1,6 +1,5 @@
 import logging
 
-from django.contrib.auth.models import User
 from django.conf import settings
 
 from .util.ts3 import TS3Server, TeamspeakError
