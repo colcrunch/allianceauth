@@ -82,6 +82,7 @@ ugettext = lambda s: s
 LANGUAGES = (
     ('en', ugettext('English')),
     ('de', ugettext('German')),
+    ('es', ugettext('Spanish')),
 )
 
 TEMPLATES = [
@@ -192,6 +193,8 @@ LOGIN_TOKEN_SCOPES = ['publicData']
 
 # number of days email verification links are valid for
 ACCOUNT_ACTIVATION_DAYS = 1
+
+ESI_API_URL = 'https://esi.evetech.net/'
 
 LOGGING = {
     'version': 1,
